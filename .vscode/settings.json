@@ -1,0 +1,8 @@
+{
+    "eslint.enable": true,
+    "eslint.codeAction.showDocumentation": {
+        "enable": true
+    },
+    "editor.formatOnSave": true,
+    "github.copilot.advanced": {}
+}

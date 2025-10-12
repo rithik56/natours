@@ -1,0 +1,23 @@
+import axios from 'axios';
+import { displayAlert } from './alerts.mjs';
+
+const stripe = Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+
+const createCheckoutSession = async (tourId) => {
+  try {
+    const res = await axios({
+      method: 'GET',
+      url: `/api/v1/bookings/checkout-session/${tourId}`,
+    });
+
+    if (res.data.status === 'success') {
+      // 2) Create checkout form + redirect to checkout
+      window.location.href = res.data.session.url;
+    }
+  } catch (err) {
+    console.log('<<<< err', err);
+    displayAlert('error', err.response.data.message);
+  }
+};
+
+export default createCheckoutSession;
