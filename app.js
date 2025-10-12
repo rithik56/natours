@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const hpp = require('hpp');
 const qs = require('qs');
 const compression = require('compression');
+const cors = require('cors');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -22,6 +23,10 @@ app.enable('trust proxy');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+
+app.use(cors());
+
+app.options('*', cors());
 
 // Parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
