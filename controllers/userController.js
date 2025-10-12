@@ -66,8 +66,6 @@ exports.getMe = (req, res, next) => {
 };
 
 exports.submitFormData = catchAsync(async (req, res, next) => {
-  console.log('<<<< req.body', req.body);
-
   // we will get url encoded data in req.body
   const updatedUser = await User.findByIdAndUpdate(
     req.user.id,
@@ -80,8 +78,6 @@ exports.submitFormData = catchAsync(async (req, res, next) => {
       runValidators: true,
     },
   );
-
-  console.log('<<< updatedUser', updatedUser);
 
   res.locals.user = updatedUser;
 

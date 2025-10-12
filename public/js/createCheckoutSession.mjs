@@ -15,7 +15,6 @@ const createCheckoutSession = async (tourId) => {
       window.location.href = res.data.session.url;
     }
   } catch (err) {
-    console.log('<<<< err', err);
     displayAlert('error', err.response.data.message);
   }
 };

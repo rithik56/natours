@@ -16,7 +16,6 @@ const updateSettings = async (data, type) => {
       );
     }
   } catch (err) {
-    console.log('<<<< err.response', err.response);
     displayAlert('error', err.response.data.message);
   }
 };

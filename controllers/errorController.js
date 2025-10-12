@@ -30,7 +30,6 @@ const sendErrorDev = (err, req, res) => {
 };
 
 const sendErrorProd = (err, req, res) => {
-  console.log('<<< err', err);
   // Operational, trusted error: send message to client
   if (err.isOperational) {
     if (req.originalUrl.startsWith('/api')) {
@@ -47,7 +46,7 @@ const sendErrorProd = (err, req, res) => {
     return;
   }
   // Programming or other unknown error: don't leak error details
-  // console.error('ERROR 💥', err);
+  console.error('ERROR 💥', err);
   if (req.originalUrl.startsWith('/api')) {
     res.status(500).json({
       status: 'error',
@@ -62,8 +61,6 @@ const sendErrorProd = (err, req, res) => {
 };
 
 module.exports = (err, req, res, next) => {
-  console.log('err.name', err.name);
-
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 

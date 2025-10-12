@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const hpp = require('hpp');
 const qs = require('qs');
+const compression = require('compression');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -81,6 +82,8 @@ app.use(
     ],
   }),
 );
+
+app.use(compression());
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('tiny'));
