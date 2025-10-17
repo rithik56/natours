@@ -1,6 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const Tour = require('../models/tourModel');
+const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
 const catchAsync = require('../utils/catchAsync');
 const factory = require('./factoryController');
@@ -37,16 +38,28 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.createCheckoutBooking = catchAsync(async (req, res, next) => {
-  const { tour, user, price } = req.query;
-
-  if (!tour || !user || !price) {
-    return next();
+exports.webhookCheckout = catchAsync(async (req, res, next) => {
+  let event;
+  try {
+    const signature = req.headers['stripe-signature'];
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET,
+    );
+  } catch (err) {
+    console.log(`⚠️ Webhook signature verification failed.`, err.message);
+    return res.sendStatus(400);
   }
 
-  await Booking.create({ tour, user, price });
-
-  res.redirect('/');
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    const tour = session.client_reference_id;
+    const email = session.customer_email;
+    const user = await User.findOne({ email });
+    const price = session.line_items[0].price_data.unit_amount / 100;
+    await Booking.create({ tour, user, price });
+  }
 });
 
 exports.getAllBookings = factory.getAll(Booking);
