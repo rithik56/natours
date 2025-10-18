@@ -20,7 +20,8 @@ const bookingController = require('./controllers/bookingController');
 
 const app = express();
 
-app.enable('trust proxy');
+// Trust proxy only from Render.com (or your hosting provider)
+app.set('trust proxy', 1);
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
