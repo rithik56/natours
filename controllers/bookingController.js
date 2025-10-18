@@ -46,7 +46,7 @@ const checkoutBooking = catchAsync(async (session) => {
   // return booking;
 });
 
-exports.webhookCheckout = catchAsync(async (req, res, next) => {
+exports.webhookCheckout = (req, res) => {
   console.log('🔔 Webhook received:', new Date().toISOString());
   console.log('Headers:', req.headers);
   console.log('Body length:', req.body.length);
@@ -78,7 +78,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
 
   console.log('✅ Webhook processed successfully');
   res.json({ received: true });
-});
+};
 
 exports.getAllBookings = factory.getAll(Booking);
 
