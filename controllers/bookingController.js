@@ -10,7 +10,7 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   const tour = await Tour.findById(req.params.tourId);
 
   const session = await stripe.checkout.sessions.create({
-    success_url: `${req.protocol}://${req.get('host')}?user=${req.user._id}&tour=${tour._id}&price=${tour.price}`,
+    success_url: `${req.protocol}://${req.get('host')}/my-tours`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     mode: 'payment',
     customer_email: req.user.email,
@@ -60,6 +60,8 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
     const price = session.line_items[0].price_data.unit_amount / 100;
     await Booking.create({ tour, user, price });
   }
+
+  res.status(200).json({ received: true });
 });
 
 exports.getAllBookings = factory.getAll(Booking);
