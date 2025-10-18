@@ -38,6 +38,14 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
   });
 });
 
+const checkoutBooking = catchAsync(async (session) => {
+  // const tour = session.client_reference_id;
+  // const email = session.customer_email;
+  // const price = session.amount_total / 100;
+  // const booking = await Booking.create({ tour, user: email, price });
+  // return booking;
+});
+
 exports.webhookCheckout = catchAsync(async (req, res, next) => {
   console.log('🔔 Webhook received:', new Date().toISOString());
   console.log('Headers:', req.headers);
@@ -63,34 +71,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
   }
 
   if (event.type === 'checkout.session.completed') {
-    console.log('🎯 Processing checkout.session.completed');
-    const session = event.data.object;
-
-    try {
-      const tour = session.client_reference_id;
-      const email = session.customer_email;
-
-      console.log('Tour ID:', tour);
-      console.log('Customer email:', email);
-
-      const user = await User.findOne({ email });
-      console.log('User found:', !!user);
-
-      if (!user) {
-        console.log('❌ User not found for email:', email);
-        return res.status(400).json({ error: 'User not found' });
-      }
-
-      // Get price from session.amount_total instead of line_items
-      const price = session.amount_total / 100;
-      console.log('Booking price:', price);
-
-      const booking = await Booking.create({ tour, user, price });
-      console.log('✅ Booking created successfully:', booking._id);
-    } catch (dbError) {
-      console.log('❌ Database error:', dbError.message);
-      return res.status(500).json({ error: 'Database error' });
-    }
+    checkoutBooking(event.data.object);
   } else {
     console.log('ℹ️ Unhandled event type:', event.type);
   }
