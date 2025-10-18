@@ -1,7 +1,9 @@
 import axios from 'axios';
 import { displayAlert } from './alerts.mjs';
 
-const stripe = Stripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+const stripe = Stripe(
+  'pk_test_51SESmkJbJC9AEfwEtcI9kxLPCyiCd7Bac9GeG0SIlTauIKO3mZWkA7pSHb8hYZPkcJtFfRX3ZOExVsurSB8TNXyz00w2OFCvCq',
+);
 
 const createCheckoutSession = async (tourId) => {
   try {

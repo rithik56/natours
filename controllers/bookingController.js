@@ -77,7 +77,7 @@ exports.webhookCheckout = catchAsync(async (req, res, next) => {
   }
 
   console.log('✅ Webhook processed successfully');
-  res.status(200).json({ received: true });
+  res.json({ received: true });
 });
 
 exports.getAllBookings = factory.getAll(Booking);
