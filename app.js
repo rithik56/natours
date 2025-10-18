@@ -42,7 +42,7 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 
-app.use(
+app.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
   bookingController.webhookCheckout,
@@ -109,7 +109,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);
 
-app.all('/*splat', (req, res, next) => {
+app.all('*', (req, res, next) => {
   const err = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
   next(err);
 });
