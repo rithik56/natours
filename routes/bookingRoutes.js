@@ -11,6 +11,9 @@ bookingRouter.get(
   bookingController.getCheckoutSession,
 );
 
+// Test webhook connectivity (remove in production)
+bookingRouter.get('/test-webhook', bookingController.testWebhook);
+
 bookingRouter
   .route('/')
   .get(bookingController.getAllBookings)
