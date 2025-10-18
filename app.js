@@ -13,43 +13,61 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const viewRouter = require('./routes/viewRoutes');
-const globalErrorHandler = require('./controllers/errorController');
-const AppError = require('./utils/appError');
 const bookingRouter = require('./routes/bookingRoutes');
 const bookingController = require('./controllers/bookingController');
+const globalErrorHandler = require('./controllers/errorController');
+const AppError = require('./utils/appError');
 
 const app = express();
 
-// Trust proxy only from Render.com (or your hosting provider)
+/**
+ * -------------------------------------------------------
+ * 1️⃣ Trust Proxy (Required on Render)
+ * -------------------------------------------------------
+ */
 app.set('trust proxy', 1);
 
+/**
+ * -------------------------------------------------------
+ * 2️⃣ Template Engine Setup
+ * -------------------------------------------------------
+ */
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
+/**
+ * -------------------------------------------------------
+ * 3️⃣ CORS Setup
+ * -------------------------------------------------------
+ */
 app.use(cors());
-
 app.options('*', cors());
 
-// Parse URL-encoded bodies
-app.use(express.urlencoded({ extended: true }));
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'too many requests from this IP, please try again in an hour',
-});
-
-app.use('/api', limiter);
-
+/**
+ * -------------------------------------------------------
+ * 4️⃣ Stripe Webhook — Must Come BEFORE body parsers
+ * -------------------------------------------------------
+ * Use express.raw() for Stripe signature verification
+ */
 app.post(
   '/webhook-checkout',
   express.raw({ type: 'application/json' }),
   bookingController.webhookCheckout,
 );
 
-// Update CSP options
+/**
+ * -------------------------------------------------------
+ * 5️⃣ Static Files & URL-encoded form data
+ * -------------------------------------------------------
+ */
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+/**
+ * -------------------------------------------------------
+ * 6️⃣ Security Headers
+ * -------------------------------------------------------
+ */
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -74,17 +92,31 @@ app.use(
           "'self'",
           'https://api.mapbox.com',
           'https://events.mapbox.com',
-          'ws://localhost:*',
           'https://js.stripe.com',
+          'wss://*',
         ],
       },
     },
   }),
 );
+
+/**
+ * -------------------------------------------------------
+ * 7️⃣ JSON Parsing, Cookies, Rate Limiting, Sanitization
+ * -------------------------------------------------------
+ */
 app.use(express.json({ limit: '10kb' }));
 app.use(cookieParser());
+
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'Too many requests from this IP, please try again in an hour.',
+});
+app.use('/api', limiter);
+
 app.set('query parser', (str) => qs.parse(str));
-// app.use(xss);
+
 app.use(
   hpp({
     whitelist: [
@@ -100,19 +132,33 @@ app.use(
 
 app.use(compression());
 
+/**
+ * -------------------------------------------------------
+ * 8️⃣ Logging (only in dev)
+ * -------------------------------------------------------
+ */
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('tiny'));
+  app.use(morgan('dev'));
 }
 
+/**
+ * -------------------------------------------------------
+ * 9️⃣ Routes
+ * -------------------------------------------------------
+ */
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/bookings', bookingRouter);
 
+/**
+ * -------------------------------------------------------
+ * 🔟 404 + Global Error Handler
+ * -------------------------------------------------------
+ */
 app.all('*', (req, res, next) => {
-  const err = new AppError(`Can't find ${req.originalUrl} on this server`, 404);
-  next(err);
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 app.use(globalErrorHandler);
