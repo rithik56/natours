@@ -39,45 +39,31 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
 });
 
 const checkoutBooking = catchAsync(async (session) => {
-  // const tour = session.client_reference_id;
-  // const email = session.customer_email;
-  // const price = session.amount_total / 100;
-  // const booking = await Booking.create({ tour, user: email, price });
-  // return booking;
+  const tour = session.client_reference_id;
+  const email = await User.findOne({ email: session.customer_email }).id;
+  const price = session.amount_total / 100;
+  const booking = await Booking.create({ tour, user: email, price });
+  return booking;
 });
 
 exports.webhookCheckout = (req, res) => {
-  console.log('🔔 Webhook received:', new Date().toISOString());
-  console.log('Headers:', req.headers);
-  console.log('Body length:', req.body.length);
-
   let event;
   try {
     const signature = req.headers['stripe-signature'];
-    console.log('Signature present:', !!signature);
 
     event = stripe.webhooks.constructEvent(
       req.body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET,
     );
-    console.log('✅ Event verified successfully');
-    console.log('Event type:', event.type);
-    console.log('Event ID:', event.id);
   } catch (err) {
-    console.log(`⚠️ Webhook signature verification failed:`, err.message);
-    console.log('Raw body:', req.body.toString());
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === 'checkout.session.completed') {
     checkoutBooking(event.data.object);
-  } else {
-    console.log('ℹ️ Unhandled event type:', event.type);
   }
-
-  console.log('✅ Webhook processed successfully');
-  res.json({ received: true });
+  return res.json({ received: true });
 };
 
 exports.getAllBookings = factory.getAll(Booking);
