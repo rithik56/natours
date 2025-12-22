@@ -1,10 +1,25 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const Queue = require('bull');
+
+const emailQueue = new Queue('email', process.env.REDIS_URL);
 
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Email = require('../utils/sendEmail');
+
+// Process the queue
+emailQueue.process(async (job) => {
+  const { user, url, emailType } = job.data;
+  const emailService = new Email(user, url);
+
+  if (emailType === 'welcome') {
+    await emailService.welcomeEmail();
+  } else if (emailType === 'resetPassword') {
+    await emailService.resetPassword();
+  }
+});
 
 const signJwt = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -41,10 +56,12 @@ exports.signup = catchAsync(async (req, res) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  await new Email(
+  // Add to queue instead of sending directly
+  await emailQueue.add({
     user,
-    `${req.protocol}://${req.get('host')}/me`,
-  ).welcomeEmail();
+    url: `${req.protocol}://${req.get('host')}/me`,
+    emailType: 'welcome',
+  });
 
   createSendToken(user, 201, res);
 });
@@ -124,12 +141,12 @@ exports.forgetPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   try {
-    await Email(
+    // Add to queue
+    await emailQueue.add({
       user,
-      `${req.protocol}://${req.get(
-        'host',
-      )}/api/v1/users/resetPassword/${token}`,
-    ).resetPassword();
+      url: `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${token}`,
+      emailType: 'resetPassword',
+    });
   } catch {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;

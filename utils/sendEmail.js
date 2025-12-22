@@ -33,8 +33,11 @@ class Email {
     await this.send('welcome', 'Welcome to the natours family');
   }
 
-  resetPassword() {
-    this.send('resetPassword', 'Password Reset Email (Valid for 10 mins)');
+  async resetPassword() {
+    await this.send(
+      'resetPassword',
+      'Password Reset Email (Valid for 10 mins)',
+    );
   }
 
   async send(template, subject) {
