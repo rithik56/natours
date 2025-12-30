@@ -19,12 +19,20 @@ emailQueue.on('error', (error) => {
   console.error('Email queue Redis error:', error);
 });
 
+emailQueue.on('failed', (error) => {
+  console.error('Email queue Redis failed:', error);
+});
+
 emailQueue.on('ready', () => {
   console.log('Email queue connected to Redis successfully');
 });
 
 emailQueue.on('waiting', (jobId) => {
   console.log('Job waiting in queue:', jobId);
+});
+
+emailQueue.on('completed', (jobId) => {
+  console.log('Job completed:', jobId);
 });
 
 // Process the queue

@@ -15,6 +15,7 @@ class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
+      console.log('<<<< sgmail', sgMail);
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
       return sgMail;
     }
