@@ -14,12 +14,12 @@ class Email {
   }
 
   newTransport() {
-    console.log('<<<< process.env.NODE_ENV', process.env.NODE_ENV);
-    if (process.env.NODE_ENV === 'production') {
-      console.log('<<<< sgmail', sgMail);
-      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-      return sgMail;
-    }
+    // console.log('<<<< process.env.NODE_ENV', process.env.NODE_ENV);
+    // if (process.env.NODE_ENV === 'production') {
+    //   console.log('<<<< sgmail', sgMail);
+    //   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    //   return sgMail;
+    // }
 
     return nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
@@ -32,7 +32,8 @@ class Email {
   }
 
   async welcomeEmail() {
-    await this.send('welcome', 'Welcome to the natours family');
+    const res = await this.send('welcome', 'Welcome to the natours family');
+    console.log('<<<< res', res);
   }
 
   async resetPassword() {
@@ -59,11 +60,11 @@ class Email {
       text: textToHtml.htmlToText(html),
     };
 
-    console.log('<<<< process.env.NODE_ENV', process.env.NODE_ENV);
+    // console.log('<<<< process.env.NODE_ENV', process.env.NODE_ENV);
 
-    if (process.env.NODE_ENV === 'production') {
-      return await this.newTransport().send(options);
-    }
+    // if (process.env.NODE_ENV === 'production') {
+    //   return await this.newTransport().send(options);
+    // }
 
     return await this.newTransport().sendMail(options);
   }

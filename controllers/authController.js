@@ -37,14 +37,13 @@ emailQueue.on('completed', (jobId) => {
 
 // Process the queue
 emailQueue.process(async (job) => {
-  // console.log('<<<<< job', job);
   const { user, url, emailType } = job.data;
   const emailService = new Email(user, url);
 
   if (emailType === 'welcome') {
-    await emailService.welcomeEmail();
+    return emailService.welcomeEmail();
   } else if (emailType === 'resetPassword') {
-    await emailService.resetPassword();
+    return emailService.resetPassword();
   }
 });
 
