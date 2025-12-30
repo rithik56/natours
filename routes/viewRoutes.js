@@ -20,6 +20,12 @@ viewRouter.get(
   viewController.getLoginForm,
 );
 
+viewRouter.get(
+  '/signup',
+  authController.isLoggedIn,
+  viewController.getSignupForm,
+);
+
 viewRouter.get('/me', authController.protect, viewController.getAccount);
 viewRouter.get('/my-tours', authController.protect, viewController.getMyTours);
 

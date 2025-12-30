@@ -9,8 +9,21 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const Email = require('../utils/sendEmail');
 
+emailQueue.on('error', (error) => {
+  console.error('Email queue Redis error:', error);
+});
+
+emailQueue.on('ready', () => {
+  console.log('Email queue connected to Redis successfully');
+});
+
+emailQueue.on('waiting', (jobId) => {
+  console.log('Job waiting in queue:', jobId);
+});
+
 // Process the queue
 emailQueue.process(async (job) => {
+  // console.log('<<<<< job', job);
   const { user, url, emailType } = job.data;
   const emailService = new Email(user, url);
 
