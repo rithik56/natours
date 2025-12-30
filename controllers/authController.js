@@ -2,7 +2,13 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const Queue = require('bull');
 
-const emailQueue = new Queue('email', process.env.REDIS_URL);
+const emailQueue = new Queue('email', process.env.REDIS_URL, {
+  redis: {
+    tls: {
+      rejectUnauthorized: false,
+    },
+  },
+});
 
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
