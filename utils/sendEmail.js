@@ -59,6 +59,8 @@ class Email {
       text: textToHtml.htmlToText(html),
     };
 
+    console.log('<<<< process.env.NODE_ENV', process.env.NODE_ENV);
+
     if (process.env.NODE_ENV === 'production') {
       return await this.newTransport().send(options);
     }
