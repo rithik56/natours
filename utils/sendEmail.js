@@ -34,10 +34,11 @@ class Email {
   async welcomeEmail() {
     const res = await this.send('welcome', 'Welcome to the natours family');
     console.log('<<<< res', res);
+    return res;
   }
 
   async resetPassword() {
-    await this.send(
+    return await this.send(
       'resetPassword',
       'Password Reset Email (Valid for 10 mins)',
     );
