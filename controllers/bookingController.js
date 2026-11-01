@@ -76,12 +76,12 @@ exports.updateBooking = factory.updateOne(Booking);
 
 exports.deleteBooking = factory.deleteOne(Booking);
 
-// Debug endpoint to test webhook connectivity
-exports.testWebhook = (req, res) => {
-  console.log('🧪 Webhook test endpoint hit');
-  res.status(200).json({
-    message: 'Webhook endpoint is reachable',
-    timestamp: new Date().toISOString(),
-    headers: req.headers,
-  });
-};
+// Debug endpoint to test webhook connectivity (disabled)
+// exports.testWebhook = (req, res) => {
+//   console.log('🧪 Webhook test endpoint hit');
+//   res.status(200).json({
+//     message: 'Webhook endpoint is reachable',
+//     timestamp: new Date().toISOString(),
+//     headers: req.headers,
+//   });
+// };

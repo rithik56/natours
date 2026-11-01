@@ -11,8 +11,9 @@ bookingRouter.get(
   bookingController.getCheckoutSession,
 );
 
-// Test webhook connectivity (remove in production)
-bookingRouter.get('/test-webhook', bookingController.testWebhook);
+// Test webhook connectivity — disabled because it echoes request headers
+// (including cookies) back to the caller. Uncomment only for local debugging.
+// bookingRouter.get('/test-webhook', bookingController.testWebhook);
 
 bookingRouter
   .route('/')
